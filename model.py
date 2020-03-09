@@ -9,7 +9,7 @@
 Modified by 
 @Author: An Tao
 @Contact: ta19@mails.tsinghua.edu.cn
-@Time: 2019/12/30 9:32 PM
+@Time: 2020/3/9 9:32 PM
 """
 
 
@@ -22,8 +22,6 @@ import torch
 import torch.nn as nn
 import torch.nn.init as init
 import torch.nn.functional as F
-
-import argparse
 
 from data import ShapeNetPart
 from util import cal_loss
