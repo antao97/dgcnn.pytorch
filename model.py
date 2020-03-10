@@ -23,9 +23,6 @@ import torch.nn as nn
 import torch.nn.init as init
 import torch.nn.functional as F
 
-from data import ShapeNetPart
-from util import cal_loss
-
 
 def knn(x, k):
     inner = -2*torch.matmul(x.transpose(2, 1), x)
