@@ -19,7 +19,7 @@
 - Python 3.7
 - PyTorch 1.2
 - CUDA 10.0
-- Python包: glob, h5py, sklearn
+- Python包：glob, h5py, sklearn
 
 &nbsp;
 ## 内容目录
@@ -126,7 +126,7 @@ python main_partseg.py --exp_name=partseg_airplane_eval --class_choice=airplane 
 ```
 
 ### 模型性能
-ShapeNet part数据集
+ShapeNet part 数据集
 
 | &emsp;&emsp;&emsp;&emsp; | 平均IoU | Airplane | Bag | Cap | Car | Chair | Earphone | Guitar | Knife | Lamp | Laptop | Motor | Mug | Pistol | Rocket | Skateboard | Table
 | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | 
