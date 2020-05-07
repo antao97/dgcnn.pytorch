@@ -1,7 +1,9 @@
 # DGCNN.pytorch
+[[中文版]](README_zh.md)
+
 This repo is a PyTorch implementation for **Dynamic Graph CNN for Learning on Point Clouds (DGCNN)**(https://arxiv.xilesou.top/pdf/1801.07829). Our code skeleton is borrowed from [WangYueFt/dgcnn](https://github.com/WangYueFt/dgcnn/tree/master/pytorch).
 
-Note that the drawed network sturcture for classification in DGCNN paper is not consistent with the corresponding description in section 4.1. We fixed this mistake using PS and present the revised figure below.
+Note that the network structure (Fig. 3) for classification in DGCNN paper is not consistent with the corresponding description in section 4.1. We fixed this mistake using PS and present the revised figure below.
 
 &nbsp;
 <p float="left">
@@ -10,7 +12,7 @@ Note that the drawed network sturcture for classification in DGCNN paper is not 
 
 &nbsp;
 
-**Tip:** The result of point cloud experiment usually faces greater randomness than 2D image. We suggest you run your experiement more than one time and select the best result.
+**Tip:** The result of point cloud experiment usually faces greater randomness than 2D image. We suggest you run your experiment more than one time and select the best result.
 
 &nbsp;
 ## Requirements
@@ -23,7 +25,7 @@ Note that the drawed network sturcture for classification in DGCNN paper is not 
 ## Contents
 - [Point Cloud Classification](#point-cloud-classification)
 - [Point Cloud Part Segmentation](#point-cloud-part-segmentation)
-- [Point Cloud Sementic Segmentation](#point-cloud-sementic-segmentation)
+- [Point Cloud Semantic Segmentation](#point-cloud-sementic-segmentation)
 
 &nbsp;
 ## Point Cloud Classification
@@ -133,9 +135,9 @@ ShapeNet part dataset
 | This repo | **85.2** | **84.5** | 80.3 | 84.7 | **79.8** | **91.1** | **76.8** | **92.0** | 87.3 | **83.8** | **95.7** | **69.6** | 94.3 | **83.7** | 51.5 | **76.1** | **82.8** |
 
 &nbsp;
-## Point Cloud Sementic Segmentation
+## Point Cloud Semantic Segmentation
 
-The network structure for this task is slightly different with part sementation, without spatial transform and categorical vector. The MLP in the end is changed into (512, 256, 13) and only one dropout is used after 256. 
+The network structure for this task is slightly different with part segmentation, without spatial transform and categorical vector. The MLP in the end is changed into (512, 256, 13) and only one dropout is used after 256. 
 
 You have to download `Stanford3dDataset_v1.2_Aligned_Version.zip` manually from https://goo.gl/forms/4SoGp4KtH1jfRqEj2 and place it under `data/`
 
@@ -146,18 +148,18 @@ This task use 6-fold training, such that 6 models are trained leaving 1 of 6 are
 - Train in area 1-5
 
 ``` 
-python main_semseg.py --exp_name=semseg --test_area=6 
+python main_semseg.py --exp_name=semseg_6 --test_area=6 
 ```
 
 ### Run the evaluation script after training finished:
 
-- Evaluate in area 6
+- Evaluate in area 6 after model is trained in area 1-5
 
 ``` 
 python main_semseg.py --exp_name=semseg_eval_6 --test_area=6 --eval=True --model_root=checkpoints/semseg/models/
 ```
 
-- Evaluate in all area
+- Evaluate in all areas after 6 models are trained
 
 ``` 
 python main_semseg.py --exp_name=semseg_eval --test_area=all --eval=True --model_root=checkpoints/semseg/models/
@@ -171,7 +173,7 @@ python main_semseg.py --exp_name=semseg_eval --test_area=all --eval=True --model
 python main_semseg.py --exp_name=semseg_eval_6 --test_area=6 --eval=True --model_root=pretrained/semseg/
 ```
 
-- Evaluate in all area
+- Evaluate in all areas
 
 ``` 
 python main_semseg.py --exp_name=semseg_eval --test_area=all --eval=True --model_root=pretrained/semseg/
