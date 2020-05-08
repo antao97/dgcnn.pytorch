@@ -3,7 +3,7 @@
 
 This repo is a PyTorch implementation for **Dynamic Graph CNN for Learning on Point Clouds (DGCNN)**(https://arxiv.xilesou.top/pdf/1801.07829). Our code skeleton is borrowed from [WangYueFt/dgcnn](https://github.com/WangYueFt/dgcnn/tree/master/pytorch).
 
-Note that the network structure (Fig. 3) for classification in DGCNN paper is not consistent with the corresponding description in section 4.1. We fixed this mistake using PS and present the revised figure below.
+Note that the network structure (Fig. 3) for classification in DGCNN paper is not consistent with the corresponding description in section 4.1 of the paper. The author of DGCNN adopts the setting of classification network in section 4.1, not Fig. 3. We fixed this mistake in Fig. 3 using PS and present the revised figure below.
 
 &nbsp;
 <p float="left">

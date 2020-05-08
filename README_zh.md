@@ -3,7 +3,7 @@
 
 本仓库提供了一份PyTorch版本的 **Dynamic Graph CNN for Learning on Point Clouds (DGCNN)**（ https://arxiv.xilesou.top/pdf/1801.07829 ）代码实现，代码框架来源于[WangYueFt/dgcnn](https://github.com/WangYueFt/dgcnn/tree/master/pytorch)。
 
-需要注意的是，在DGCNN文章中网络结构图（图3）和下文对应的网络结构描述（第4.1节）并不吻合，我们使用PS修复了网络结构图中不吻合的地方，修改后的图如下：
+需要注意的是，在DGCNN文章中网络结构图（图3）中的分类网络和文章中对应的网络结构描述（第4.1节）并不吻合，原作者实际沿用了网络结构描述（第4.1节）中的网络结构，我们使用PS修复了网络结构图（图3）中不吻合的地方，修改后的图如下：
 
 &nbsp;
 <p float="left">
