@@ -43,7 +43,7 @@ def download_shapenetpart():
     if not os.path.exists(os.path.join(DATA_DIR, 'shapenet_part_seg_hdf5_data')):
         www = 'https://shapenet.cs.stanford.edu/media/shapenet_part_seg_hdf5_data.zip'
         zipfile = os.path.basename(www)
-        os.system('wget %s; unzip %s' % (www, zipfile))
+        os.system('wget %s --no-check-certificate; unzip %s' % (www, zipfile))
         os.system('mv %s %s' % (zipfile[:-4], os.path.join(DATA_DIR, 'shapenet_part_seg_hdf5_data')))
         os.system('rm %s' % (zipfile))
 
