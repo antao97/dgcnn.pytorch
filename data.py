@@ -229,7 +229,7 @@ class ShapeNetPart(Dataset):
         pointcloud = self.data[item][:self.num_points]
         label = self.label[item]
         seg = self.seg[item][:self.num_points]
-        if self.partition == 'train':
+        if self.partition == 'trainval':
             # pointcloud = translate_pointcloud(pointcloud)
             indices = list(range(pointcloud.shape[0]))
             np.random.shuffle(indices)
