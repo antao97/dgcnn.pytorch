@@ -67,6 +67,7 @@ def download_S3DIS():
         else:
             zippath = os.path.join(DATA_DIR, 'Stanford3dDataset_v1.2_Aligned_Version.zip')
             os.system('unzip %s' % (zippath))
+            os.system('mv %s %s' % (zipfile[:-4], DATA_DIR))
             os.system('rm %s' % (zippath))
 
 
