@@ -30,8 +30,8 @@ def download_modelnet40():
     if not os.path.exists(os.path.join(DATA_DIR, 'modelnet40_ply_hdf5_2048')):
         www = 'https://shapenet.cs.stanford.edu/media/modelnet40_ply_hdf5_2048.zip'
         zipfile = os.path.basename(www)
-        os.system('wget %s; unzip %s' % (www, zipfile))
-        os.system('mv %s %s' % (zipfile[:-4], DATA_DIR))
+        os.system('wget %s --no-check-certificate; unzip %s' % (www, zipfile))
+        os.system('mv %s %s' % ('modelnet40_ply_hdf5_2048', DATA_DIR))
         os.system('rm %s' % (zipfile))
 
 
@@ -44,7 +44,7 @@ def download_shapenetpart():
         www = 'https://shapenet.cs.stanford.edu/media/shapenet_part_seg_hdf5_data.zip'
         zipfile = os.path.basename(www)
         os.system('wget %s --no-check-certificate; unzip %s' % (www, zipfile))
-        os.system('mv %s %s' % (zipfile[:-4], os.path.join(DATA_DIR, 'shapenet_part_seg_hdf5_data')))
+        os.system('mv %s %s' % ('hdf5_data', os.path.join(DATA_DIR, 'shapenet_part_seg_hdf5_data')))
         os.system('rm %s' % (zipfile))
 
 
@@ -56,8 +56,8 @@ def download_S3DIS():
     if not os.path.exists(os.path.join(DATA_DIR, 'indoor3d_sem_seg_hdf5_data')):
         www = 'https://shapenet.cs.stanford.edu/media/indoor3d_sem_seg_hdf5_data.zip'
         zipfile = os.path.basename(www)
-        os.system('wget %s; unzip %s' % (www, zipfile))
-        os.system('mv %s %s' % (zipfile[:-4], DATA_DIR))
+        os.system('wget %s --no-check-certificate; unzip %s' % (www, zipfile))
+        os.system('mv %s %s' % ('indoor3d_sem_seg_hdf5_data', DATA_DIR))
         os.system('rm %s' % (zipfile))
     if not os.path.exists(os.path.join(DATA_DIR, 'Stanford3dDataset_v1.2_Aligned_Version')):
         if not os.path.exists(os.path.join(DATA_DIR, 'Stanford3dDataset_v1.2_Aligned_Version.zip')):
