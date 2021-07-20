@@ -160,7 +160,7 @@ Use `--visu_format` to control visualization file format.
 - To output .txt file, use `--visu_format=txt`. 
 - To output .ply format, use `--visu_format=ply`. 
 
-Both .txt and .ply file can be loaded into [MeshLab](https://www.meshlab.net) for visualization. For the usage of MeshLab on .txt file, see issue [#8](https://github.com/AnTao97/dgcnn.pytorch/issues/8) for details. The .ply file can be directed loaded into MeshLab by dragging.
+Both .txt and .ply file can be loaded into [MeshLab](https://www.meshlab.net) for visualization. For the usage of MeshLab on .txt file, see issue [#8](https://github.com/AnTao97/dgcnn.pytorch/issues/8) for details. The .ply file can be directly loaded into MeshLab by dragging.
 
 The visualization file name follows the format `shapename_pred_miou.FILE_TYPE` for prediction output or `shapename_gt.FILE_TYPE` for ground-truth, where `miou` shows the mIoU prediction for this shape.
 
@@ -298,7 +298,7 @@ Use `--visu_format` to control visualization file format.
 - To output .txt file, use `--visu_format=txt`. 
 - To output .ply format, use `--visu_format=ply`. 
 
-Both .txt and .ply file can be loaded into [MeshLab](https://www.meshlab.net) for visualization. For the usage of MeshLab on .txt file, see issue [#8](https://github.com/AnTao97/dgcnn.pytorch/issues/8) for details. The .ply file can be directed loaded into MeshLab by dragging.
+Both .txt and .ply file can be loaded into [MeshLab](https://www.meshlab.net) for visualization. For the usage of MeshLab on .txt file, see issue [#8](https://github.com/AnTao97/dgcnn.pytorch/issues/8) for details. The .ply file can be directly loaded into MeshLab by dragging.
 
 The visualization file name follows the format `roomname_pred_miou.FILE_TYPE` for prediction output or `roomname_gt.FILE_TYPE` for ground-truth, where `miou` shows the mIoU prediction for this room.
 
