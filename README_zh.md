@@ -218,7 +218,7 @@ python main_partseg.py --exp_name=partseg_airplane_eval --class_choice=airplane 
 python main_partseg.py --exp_name=partseg_airplane_eval --class_choice=airplane --eval=True --model_path=pretrained/model.partseg.airplane.t7 --visu=airplane --visu_format=ply
 ```
 
-#### 可视化结果
+#### 可视化结果：
 属于飞机类别索引为0的点云形状的可视化结果：
 
 <p float="left">
@@ -358,7 +358,7 @@ python main_semseg.py --exp_name=semseg_eval --test_area=all --eval=True --model
 python main_semseg.py --exp_name=semseg_eval --test_area=all --eval=True --model_root=pretrained/semseg/ --visu=all --visu_format=ply
 ```
 
-#### 可视化结果
+#### 可视化结果：
 区域6的办公室1的可视化结果：
 
 <p float="left">

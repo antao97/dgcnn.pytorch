@@ -218,7 +218,7 @@ python main_partseg.py --exp_name=partseg_airplane_eval --class_choice=airplane 
 python main_partseg.py --exp_name=partseg_airplane_eval --class_choice=airplane --eval=True --model_path=pretrained/model.partseg.airplane.t7 --visu=airplane --visu_format=ply
 ```
 
-#### Results
+#### Results:
 The visualization result of the airplane 0:
 
 <p float="left">
@@ -359,7 +359,7 @@ python main_semseg.py --exp_name=semseg_eval --test_area=all --eval=True --model
 python main_semseg.py --exp_name=semseg_eval --test_area=all --eval=True --model_root=pretrained/semseg/ --visu=all --visu_format=ply
 ```
 
-#### Results
+#### Results:
 The visualization result of the office room 1 in area 6:
 
 <p float="left">
