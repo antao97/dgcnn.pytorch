@@ -160,7 +160,7 @@ ShapeNet part 数据集
 - 输出.txt格式，使用`--visu_format=txt`。
 - 输出.ply格式，使用`--visu_format=ply`。 
 
-所有格式均可通过[MeshLab](https://www.meshlab.net)来加载进行可视化。对于使用MeshLab可视化.txt格式，参考问题[#8](#8)中的介绍，而.ply格式可以直接拖入MeshLab进行可视化。
+所有格式均可通过[MeshLab](https://www.meshlab.net)来加载进行可视化。对于使用MeshLab可视化.txt格式，参考问题[#8](https://github.com/AnTao97/dgcnn.pytorch/issues/8)中的介绍，而.ply格式可以直接拖入MeshLab进行可视化。
 
 可视化文件名遵循统一的命名格式。对于预测结果，文件名格式为`点云形状名称_pred_miou.格式后缀`；对于真实标签，文件名格式为`点云形状名称_gt.格式后缀`。文件名中`miou`指该点云形状的平均IoU。
 
@@ -297,7 +297,7 @@ python main_semseg.py --exp_name=semseg_eval --test_area=all --eval=True --model
 - 输出.txt格式，使用`--visu_format=txt`。
 - 输出.ply格式，使用`--visu_format=ply`。 
 
-所有格式均可通过[MeshLab](https://www.meshlab.net)来加载进行可视化。对于使用MeshLab可视化.txt格式，参考问题[#8](#8)中的介绍，而.ply格式可以直接拖入MeshLab进行可视化。
+所有格式均可通过[MeshLab](https://www.meshlab.net)来加载进行可视化。对于使用MeshLab可视化.txt格式，参考问题[#8](https://github.com/AnTao97/dgcnn.pytorch/issues/8)中的介绍，而.ply格式可以直接拖入MeshLab进行可视化。
 
 可视化文件名遵循统一的命名格式。对于预测结果，文件名格式为`房间名称_pred_miou.格式后缀`；对于真实标签，文件名格式为`房间名称_gt.格式后缀`。文件名中`miou`指该房间的平均IoU。
 
