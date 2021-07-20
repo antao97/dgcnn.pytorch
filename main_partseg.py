@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-@Author: An Tao
-@Contact: ta19@mails.tsinghua.edu.cn
+@Author: An Tao, Pengliang Ji
+@Contact: ta19@mails.tsinghua.edu.cn, jpl1723@buaa.edu.cn
 @File: main_partseg.py
-@Time: 2019/12/31 11:17 AM
+@Time: 2021/7/20 7:49 PM
 """
 
 
@@ -22,25 +22,36 @@ import numpy as np
 from torch.utils.data import DataLoader
 from util import cal_loss, IOStream
 import sklearn.metrics as metrics
+from plyfile import PlyData, PlyElement
 
+global class_cnts
+class_indexs = np.zeros((16,), dtype=int)
+global visual_warning
+visual_warning = True
+
+class_choices = ['airplane', 'bag', 'cap', 'car', 'chair', 'earphone', 'guitar', 'knife', 'lamp', 'laptop', 'motorbike', 'mug', 'pistol', 'rocket', 'skateboard', 'table']
 seg_num = [4, 2, 2, 4, 4, 3, 3, 2, 4, 2, 6, 2, 3, 3, 3, 3]
 index_start = [0, 4, 6, 8, 12, 16, 19, 22, 24, 28, 30, 36, 38, 41, 44, 47]
 
+
 def _init_():
-    if not os.path.exists('checkpoints'):
-        os.makedirs('checkpoints')
-    if not os.path.exists('checkpoints/'+args.exp_name):
-        os.makedirs('checkpoints/'+args.exp_name)
-    if not os.path.exists('checkpoints/'+args.exp_name+'/'+'models'):
-        os.makedirs('checkpoints/'+args.exp_name+'/'+'models')
-    os.system('cp main_partseg.py checkpoints'+'/'+args.exp_name+'/'+'main_partseg.py.backup')
-    os.system('cp model.py checkpoints' + '/' + args.exp_name + '/' + 'model.py.backup')
-    os.system('cp util.py checkpoints' + '/' + args.exp_name + '/' + 'util.py.backup')
-    os.system('cp data.py checkpoints' + '/' + args.exp_name + '/' + 'data.py.backup')
+    if not os.path.exists('outputs'):
+        os.makedirs('outputs')
+    if not os.path.exists('outputs/'+args.exp_name):
+        os.makedirs('outputs/'+args.exp_name)
+    if not os.path.exists('outputs/'+args.exp_name+'/'+'models'):
+        os.makedirs('outputs/'+args.exp_name+'/'+'models')
+    if not os.path.exists('outputs/'+args.exp_name+'/'+'visualization'):
+        os.makedirs('outputs/'+args.exp_name+'/'+'visualization')
+    os.system('cp main_partseg.py outputs'+'/'+args.exp_name+'/'+'main_partseg.py.backup')
+    os.system('cp model.py outputs' + '/' + args.exp_name + '/' + 'model.py.backup')
+    os.system('cp util.py outputs' + '/' + args.exp_name + '/' + 'util.py.backup')
+    os.system('cp data.py outputs' + '/' + args.exp_name + '/' + 'data.py.backup')
 
 
-def calculate_shape_IoU(pred_np, seg_np, label, class_choice):
-    label = label.squeeze()
+def calculate_shape_IoU(pred_np, seg_np, label, class_choice, visual=False):
+    if not visual:
+        label = label.squeeze()
     shape_ious = []
     for shape_idx in range(seg_np.shape[0]):
         if not class_choice:
@@ -60,6 +71,70 @@ def calculate_shape_IoU(pred_np, seg_np, label, class_choice):
             part_ious.append(iou)
         shape_ious.append(np.mean(part_ious))
     return shape_ious
+
+
+def visualization(visu, visu_format, data, pred, seg, label, partseg_colors, class_choice):
+    global class_indexs
+    global visual_warning
+    visu = visu.split('_')
+    for i in range(0, data.shape[0]):
+        RGB = []
+        RGB_gt = []
+        skip = False
+        classname = class_choices[int(label[i])]
+        class_index = class_indexs[int(label[i])]
+        if visu[0] != 'all':
+            if len(visu) != 1:
+                if visu[0] != classname or visu[1] != str(class_index):
+                    skip = True 
+                else:
+                    visual_warning = False
+            elif visu[0] != classname:
+                skip = True 
+            else:
+                visual_warning = False
+        elif class_choice != None:
+            skip = True
+        else:
+            visual_warning = False
+        if skip:
+            class_indexs[int(label[i])] = class_indexs[int(label[i])] + 1
+        else:  
+            if not os.path.exists('outputs/'+args.exp_name+'/'+'visualization'+'/'+classname):
+                os.makedirs('outputs/'+args.exp_name+'/'+'visualization'+'/'+classname)
+            for j in range(0, data.shape[2]):
+                RGB.append(partseg_colors[int(pred[i][j])])
+                RGB_gt.append(partseg_colors[int(seg[i][j])])
+            pred_np = []
+            seg_np = []
+            pred_np.append(pred[i].cpu().numpy())
+            seg_np.append(seg[i].cpu().numpy())
+            xyz_np = data[i].cpu().numpy()
+            xyzRGB = np.concatenate((xyz_np.transpose(1, 0), np.array(RGB)), axis=1)
+            xyzRGB_gt = np.concatenate((xyz_np.transpose(1, 0), np.array(RGB_gt)), axis=1)
+            IoU = calculate_shape_IoU(np.array(pred_np), np.array(seg_np), label[i].cpu().numpy(), class_choice, visual=True)
+            IoU = str(round(IoU[0], 4))
+            filepath = 'outputs/'+args.exp_name+'/'+'visualization'+'/'+classname+'/'+classname+'_'+str(class_index)+'_pred_'+IoU+'.'+visu_format
+            filepath_gt = 'outputs/'+args.exp_name+'/'+'visualization'+'/'+classname+'/'+classname+'_'+str(class_index)+'_gt.'+visu_format
+            if visu_format=='txt':
+                np.savetxt(filepath, xyzRGB, fmt='%s', delimiter=' ') 
+                np.savetxt(filepath_gt, xyzRGB_gt, fmt='%s', delimiter=' ') 
+                print('TXT visualization file saved in', filepath)
+                print('TXT visualization file saved in', filepath_gt)
+            elif visu_format=='ply':
+                xyzRGB = [(xyzRGB[i, 0], xyzRGB[i, 1], xyzRGB[i, 2], xyzRGB[i, 3], xyzRGB[i, 4], xyzRGB[i, 5]) for i in range(xyzRGB.shape[0])]
+                xyzRGB_gt = [(xyzRGB_gt[i, 0], xyzRGB_gt[i, 1], xyzRGB_gt[i, 2], xyzRGB_gt[i, 3], xyzRGB_gt[i, 4], xyzRGB_gt[i, 5]) for i in range(xyzRGB_gt.shape[0])]
+                vertex = PlyElement.describe(np.array(xyzRGB, dtype=[('x', 'f4'), ('y', 'f4'), ('z', 'f4'), ('red', 'u1'), ('green', 'u1'), ('blue', 'u1')]), 'vertex')
+                PlyData([vertex]).write(filepath)
+                vertex = PlyElement.describe(np.array(xyzRGB_gt, dtype=[('x', 'f4'), ('y', 'f4'), ('z', 'f4'), ('red', 'u1'), ('green', 'u1'), ('blue', 'u1')]), 'vertex')
+                PlyData([vertex]).write(filepath_gt)
+                print('PLY visualization file saved in', filepath)
+                print('PLY visualization file saved in', filepath_gt)
+            else:
+                print('ERROR!! Unknown visualization format: %s, please use txt or ply.' % \
+                (visu_format))
+                exit()
+            class_indexs[int(label[i])] = class_indexs[int(label[i])] + 1
 
 
 def train(args, io):
@@ -210,18 +285,18 @@ def train(args, io):
         io.cprint(outstr)
         if np.mean(test_ious) >= best_test_iou:
             best_test_iou = np.mean(test_ious)
-            torch.save(model.state_dict(), 'checkpoints/%s/models/model.t7' % args.exp_name)
+            torch.save(model.state_dict(), 'outputs/%s/models/model.t7' % args.exp_name)
 
 
 def test(args, io):
     test_loader = DataLoader(ShapeNetPart(partition='test', num_points=args.num_points, class_choice=args.class_choice),
                              batch_size=args.test_batch_size, shuffle=True, drop_last=False)
-
     device = torch.device("cuda" if args.cuda else "cpu")
-
+    
     #Try to load models
     seg_num_all = test_loader.dataset.seg_num_all
     seg_start_index = test_loader.dataset.seg_start_index
+    partseg_colors = test_loader.dataset.partseg_colors
     if args.model == 'dgcnn':
         model = DGCNN_partseg(args, seg_num_all).to(device)
     else:
@@ -256,6 +331,10 @@ def test(args, io):
         test_true_seg.append(seg_np)
         test_pred_seg.append(pred_np)
         test_label_seg.append(label.reshape(-1))
+        # visiualization
+        visualization(args.visu, args.visu_format, data, pred, seg, label, partseg_colors, args.class_choice) 
+    if visual_warning and args.visu != '':
+        print('Visualization Failed: You can only choose a point cloud shape to visualize within the scope of the test class')
     test_true_cls = np.concatenate(test_true_cls)
     test_pred_cls = np.concatenate(test_pred_cls)
     test_acc = metrics.accuracy_score(test_true_cls, test_pred_cls)
@@ -315,11 +394,15 @@ if __name__ == "__main__":
                         help='Num of nearest neighbors to use')
     parser.add_argument('--model_path', type=str, default='', metavar='N',
                         help='Pretrained model path')
+    parser.add_argument('--visu', type=str, default='',
+                        help='visualize the model')
+    parser.add_argument('--visu_format', type=str, default='ply',
+                        help='file format of visualization')
     args = parser.parse_args()
 
     _init_()
 
-    io = IOStream('checkpoints/' + args.exp_name + '/run.log')
+    io = IOStream('outputs/' + args.exp_name + '/run.log')
     io.cprint(str(args))
 
     args.cuda = not args.no_cuda and torch.cuda.is_available()

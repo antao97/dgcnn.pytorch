@@ -30,16 +30,16 @@ import sklearn.metrics as metrics
 
 
 def _init_():
-    if not os.path.exists('checkpoints'):
-        os.makedirs('checkpoints')
-    if not os.path.exists('checkpoints/'+args.exp_name):
-        os.makedirs('checkpoints/'+args.exp_name)
-    if not os.path.exists('checkpoints/'+args.exp_name+'/'+'models'):
-        os.makedirs('checkpoints/'+args.exp_name+'/'+'models')
-    os.system('cp main_cls.py checkpoints'+'/'+args.exp_name+'/'+'main_cls.py.backup')
-    os.system('cp model.py checkpoints' + '/' + args.exp_name + '/' + 'model.py.backup')
-    os.system('cp util.py checkpoints' + '/' + args.exp_name + '/' + 'util.py.backup')
-    os.system('cp data.py checkpoints' + '/' + args.exp_name + '/' + 'data.py.backup')
+    if not os.path.exists('outputs'):
+        os.makedirs('outputs')
+    if not os.path.exists('outputs/'+args.exp_name):
+        os.makedirs('outputs/'+args.exp_name)
+    if not os.path.exists('outputs/'+args.exp_name+'/'+'models'):
+        os.makedirs('outputs/'+args.exp_name+'/'+'models')
+    os.system('cp main_cls.py outputs'+'/'+args.exp_name+'/'+'main_cls.py.backup')
+    os.system('cp model.py outputs' + '/' + args.exp_name + '/' + 'model.py.backup')
+    os.system('cp util.py outputs' + '/' + args.exp_name + '/' + 'util.py.backup')
+    os.system('cp data.py outputs' + '/' + args.exp_name + '/' + 'data.py.backup')
 
 def train(args, io):
     train_loader = DataLoader(ModelNet40(partition='train', num_points=args.num_points), num_workers=8,
@@ -149,7 +149,7 @@ def train(args, io):
         io.cprint(outstr)
         if test_acc >= best_test_acc:
             best_test_acc = test_acc
-            torch.save(model.state_dict(), 'checkpoints/%s/models/model.t7' % args.exp_name)
+            torch.save(model.state_dict(), 'outputs/%s/models/model.t7' % args.exp_name)
 
 
 def test(args, io):
@@ -235,7 +235,7 @@ if __name__ == "__main__":
 
     _init_()
 
-    io = IOStream('checkpoints/' + args.exp_name + '/run.log')
+    io = IOStream('outputs/' + args.exp_name + '/run.log')
     io.cprint(str(args))
 
     args.cuda = not args.no_cuda and torch.cuda.is_available()

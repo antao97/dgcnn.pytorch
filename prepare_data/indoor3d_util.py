@@ -29,7 +29,9 @@ g_class2color = {'ceiling':	[0,255,0],
 g_easy_view_labels = [7,8,9,10,11,1]
 g_label2color = {g_classes.index(cls): g_class2color[cls] for cls in g_classes}
 
-
+global raw_data_index
+raw_data_index = 0
+    
 # -----------------------------------------------------------------------------
 # CONVERT ORIGINAL DATA TO OUR DATA_LABEL FILES
 # -----------------------------------------------------------------------------
@@ -129,7 +131,7 @@ def sample_data_label(data, label, num_sample):
     new_label = label[sample_indices]
     return new_data, new_label
     
-def room2blocks(data, label, num_point, block_size=1.0, stride=1.0,
+def room2blocks(data_label_filename, data, label, num_point, block_size=1.0, stride=1.0,
                 random_sample=False, sample_num=None, sample_aug=1):
     """ Prepare block training data.
     Args:
@@ -174,11 +176,18 @@ def room2blocks(data, label, num_point, block_size=1.0, stride=1.0,
             ybeg = np.random.uniform(-block_size, limit[1]) 
             xbeg_list.append(xbeg)
             ybeg_list.append(ybeg)
-
+    data_label_filename = data_label_filename[:-4].split('/')
+    data_label_filename = data_label_filename[len(data_label_filename) - 1]
+    test_area = data_label_filename[5]
+    room_name = data_label_filename[7:]
+    if not os.path.exists("data/indoor3d_sem_seg_hdf5_data_test/raw_data3d"):
+        os.makedirs("data/indoor3d_sem_seg_hdf5_data_test/raw_data3d")
+    if not os.path.exists("data/indoor3d_sem_seg_hdf5_data_test/raw_data3d/Area_"+str(test_area)):
+        os.makedirs("data/indoor3d_sem_seg_hdf5_data_test/raw_data3d/Area_"+str(test_area))
     # Collect blocks
     block_data_list = []
     block_label_list = []
-    idx = 0
+    global raw_data_index
     for idx in range(len(xbeg_list)): 
        xbeg = xbeg_list[idx]
        ybeg = ybeg_list[idx]
@@ -195,8 +204,10 @@ def room2blocks(data, label, num_point, block_size=1.0, stride=1.0,
        block_data_sampled, block_label_sampled = \
            sample_data_label(block_data, block_label, num_point)
        block_data_list.append(np.expand_dims(block_data_sampled, 0))
-       block_label_list.append(np.expand_dims(block_label_sampled, 0))
-            
+       block_label_list.append(np.expand_dims(block_label_sampled, 0))   
+       f = open('data/indoor3d_sem_seg_hdf5_data_test/raw_data3d/Area_'+str(test_area)+'/'+str(room_name)+'('+str(raw_data_index)+').txt', "a")
+       np.savetxt(f, block_data_sampled[:,0:3], fmt='%s', delimiter=' ')     
+       raw_data_index = raw_data_index + 1
     return np.concatenate(block_data_list, 0), \
            np.concatenate(block_label_list, 0)
 
@@ -224,7 +235,7 @@ def room2blocks_wrapper(data_label_filename, num_point, block_size=1.0, stride=1
     return room2blocks_plus(data_label, num_point, block_size, stride,
                             random_sample, sample_num, sample_aug)
 
-def room2blocks_plus_normalized(data_label, num_point, block_size, stride,
+def room2blocks_plus_normalized(data_label_filename, data_label, num_point, block_size, stride,
                                 random_sample, sample_num, sample_aug):
     """ room2block, with input filename and RGB preprocessing.
         for each block centralize XYZ, add normalized XYZ as 678 channels
@@ -235,8 +246,7 @@ def room2blocks_plus_normalized(data_label, num_point, block_size, stride,
     max_room_x = max(data[:,0])
     max_room_y = max(data[:,1])
     max_room_z = max(data[:,2])
-    
-    data_batch, label_batch = room2blocks(data, label, num_point, block_size, stride,
+    data_batch, label_batch = room2blocks(data_label_filename, data, label, num_point, block_size, stride,
                                           random_sample, sample_num, sample_aug)
     new_data_batch = np.zeros((data_batch.shape[0], num_point, 9))
     for b in range(data_batch.shape[0]):
@@ -260,7 +270,7 @@ def room2blocks_wrapper_normalized(data_label_filename, num_point, block_size=1.
     else:
         print('Unknown file type! exiting.')
         exit()
-    return room2blocks_plus_normalized(data_label, num_point, block_size, stride,
+    return room2blocks_plus_normalized(data_label_filename, data_label, num_point, block_size, stride,
                                        random_sample, sample_num, sample_aug)
 
 def room2samples(data, label, sample_num_point):
