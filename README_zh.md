@@ -23,7 +23,7 @@
 - Python 3.7
 - PyTorch 1.2
 - CUDA 10.0
-- Python包：glob, h5py, sklearn
+- Python包：glob, h5py, sklearn, plyfile
 
 &nbsp;
 ## 内容目录
