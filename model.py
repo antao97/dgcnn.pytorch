@@ -7,9 +7,9 @@
 @Time: 2018/10/13 6:35 PM
 
 Modified by 
-@Author: An Tao
-@Contact: ta19@mails.tsinghua.edu.cn
-@Time: 2020/3/9 9:32 PM
+@Author: An Tao, Ziyi Wu
+@Contact: ta19@mails.tsinghua.edu.cn, dazitu616@gmail.com
+@Time: 2022/7/30 7:49 PM
 """
 
 
@@ -312,9 +312,9 @@ class DGCNN_partseg(nn.Module):
         return x
 
 
-class DGCNN_semseg(nn.Module):
+class DGCNN_semseg_s3dis(nn.Module):
     def __init__(self, args):
-        super(DGCNN_semseg, self).__init__()
+        super(DGCNN_semseg_s3dis, self).__init__()
         self.args = args
         self.k = args.k
         
@@ -387,3 +387,105 @@ class DGCNN_semseg(nn.Module):
         x = self.conv9(x)                       # (batch_size, 256, num_points) -> (batch_size, 13, num_points)
         
         return x
+        
+
+class DGCNN_semseg_scannet(nn.Module):
+    def __init__(self, num_classes, k=20, emb_dims=1024, dropout=0.5):
+        super(DGCNN_semseg_scannet, self).__init__()
+
+        self.k = k
+
+        self.bn1 = nn.BatchNorm2d(64)
+        self.bn2 = nn.BatchNorm2d(64)
+        self.bn3 = nn.BatchNorm2d(64)
+        self.bn4 = nn.BatchNorm2d(64)
+        self.bn5 = nn.BatchNorm2d(64)
+        self.bn6 = nn.BatchNorm1d(emb_dims)
+        self.bn7 = nn.BatchNorm1d(512)
+        self.bn8 = nn.BatchNorm1d(256)
+
+        self.conv1 = nn.Sequential(
+            nn.Conv2d(18, 64, kernel_size=1, bias=False),
+            self.bn1,
+            nn.LeakyReLU(negative_slope=0.2))
+        self.conv2 = nn.Sequential(
+            nn.Conv2d(64, 64, kernel_size=1, bias=False),
+            self.bn2,
+            nn.LeakyReLU(negative_slope=0.2))
+        self.conv3 = nn.Sequential(
+            nn.Conv2d(64*2, 64, kernel_size=1, bias=False),
+            self.bn3,
+            nn.LeakyReLU(negative_slope=0.2))
+        self.conv4 = nn.Sequential(
+            nn.Conv2d(64, 64, kernel_size=1, bias=False),
+            self.bn4,
+            nn.LeakyReLU(negative_slope=0.2))
+        self.conv5 = nn.Sequential(
+            nn.Conv2d(64*2, 64, kernel_size=1, bias=False),
+            self.bn5,
+            nn.LeakyReLU(negative_slope=0.2))
+        self.conv6 = nn.Sequential(
+            nn.Conv1d(192, emb_dims, kernel_size=1, bias=False),
+            self.bn6,
+            nn.LeakyReLU(negative_slope=0.2))
+        self.conv7 = nn.Sequential(
+            nn.Conv1d(1216, 512, kernel_size=1, bias=False),
+            self.bn7,
+            nn.LeakyReLU(negative_slope=0.2))
+        self.conv8 = nn.Sequential(
+            nn.Conv1d(512, 256, kernel_size=1, bias=False),
+            self.bn8,
+            nn.LeakyReLU(negative_slope=0.2))
+        self.dp1 = nn.Dropout(p=dropout)
+        self.conv9 = nn.Conv1d(256, num_classes, kernel_size=1, bias=False)
+
+    def forward(self, x):
+        bs = x.size(0)
+        npoint = x.size(2)
+
+        # (bs, 9, npoint) -> (bs, 9*2, npoint, k)
+        x = get_graph_feature(x, k=self.k, dim9=True)
+        # (bs, 9*2, npoint, k) -> (bs, 64, npoint, k)
+        x = self.conv1(x)
+        # (bs, 64, npoint, k) -> (bs, 64, npoint, k)
+        x = self.conv2(x)
+        # (bs, 64, npoint, k) -> (bs, 64, npoint)
+        x1 = x.max(dim=-1, keepdim=False)[0]
+
+        # (bs, 64, npoint) -> (bs, 64*2, npoint, k)
+        x = get_graph_feature(x1, k=self.k)
+        # (bs, 64*2, npoint, k) -> (bs, 64, npoint, k)
+        x = self.conv3(x)
+        # (bs, 64, npoint, k) -> (bs, 64, npoint, k)
+        x = self.conv4(x)
+        # (bs, 64, npoint, k) -> (bs, 64, npoint)
+        x2 = x.max(dim=-1, keepdim=False)[0]
+
+        # (bs, 64, npoint) -> (bs, 64*2, npoint, k)
+        x = get_graph_feature(x2, k=self.k)
+        # (bs, 64*2, npoint, k) -> (bs, 64, npoint, k)
+        x = self.conv5(x)
+        # (bs, 64, npoint, k) -> (bs, 64, npoint)
+        x3 = x.max(dim=-1, keepdim=False)[0]
+
+        x = torch.cat((x1, x2, x3), dim=1)      # (bs, 64*3, npoint)
+
+        # (bs, 64*3, npoint) -> (bs, emb_dims, npoint)
+        x = self.conv6(x)
+        # (bs, emb_dims, npoint) -> (bs, emb_dims, 1)
+        x = x.max(dim=-1, keepdim=True)[0]
+
+        x = x.repeat(1, 1, npoint)          # (bs, 1024, npoint)
+        x = torch.cat((x, x1, x2, x3), dim=1)   # (bs, 1024+64*3, npoint)
+
+        # (bs, 1024+64*3, npoint) -> (bs, 512, npoint)
+        x = self.conv7(x)
+        # (bs, 512, npoint) -> (bs, 256, npoint)
+        x = self.conv8(x)
+        x = self.dp1(x)
+        # (bs, 256, npoint) -> (bs, 13, npoint)
+        x = self.conv9(x)
+        # (bs, 13, npoint) -> (bs, npoint, 13)
+        x = x.transpose(2, 1).contiguous()
+
+        return x, None

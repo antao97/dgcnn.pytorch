@@ -5,7 +5,8 @@
 
 **更新：** 
 
-- [2021/7/20] 增加了可视化代码，作者：[纪鹏亮](https://github.com/Ji-Pengliang) (jpl1723@buaa.edu.cn).
+- [2022/10/22] 增加ScanNet数据集上语义分割代码，作者：[吴紫屹](https://wuziyi616.github.io/) （dazitu616@gmail.com）、[王英琦](https://github.com/HilbertWang2002)（yingqi-w19@mails.tsinghua.edu.cn）。
+- [2021/07/20] 增加了可视化代码，作者：[纪鹏亮](https://github.com/Ji-Pengliang) (jpl1723@buaa.edu.cn).
 
 在DGCNN文章中网络结构图（图3）中的分类网络和文章中对应的网络结构描述（第4.1节）并不吻合，原作者实际沿用了网络结构描述（第4.1节）中的网络结构，我们使用PS修复了网络结构图（图3）中不吻合的地方，修改后的图如下：
 
@@ -29,7 +30,8 @@
 ## 内容目录
 - [点云分类](#_3)
 - [点云局部分割](#_8)
-- [点云场景语义分割](#_16)
+- [S3DIS数据集上点云场景语义分割](#s3dis)
+- [ScanNet数据集上点云场景语义分割](#scannet)
 
 **注意：** 以下所有命令默认使用所有显卡，如果需要明确使用几张显卡，比如4张显卡索引为`0,1,2,3`，那么在每个命令前需要添加`CUDA_VISIBLE_DEVICES=0,1,2,3`。你可以根据你的需要调整使用显卡的数量和索引。
 
@@ -231,7 +233,7 @@ python main_partseg.py --exp_name=partseg_airplane_eval --class_choice=airplane 
 </p>
 
 &nbsp;
-## 点云场景语义分割
+## 在S3DIS数据集上点云场景语义分割
 
 在此任务中网络结构和点云局部分割有细微不同，最后的一个MLP尺寸改为（512, 256, 13），而且在256后只使用一个dropout。
 
@@ -244,7 +246,7 @@ python main_partseg.py --exp_name=partseg_airplane_eval --class_choice=airplane 
 - 在区域1-5上训练
 
 ``` 
-python main_semseg.py --exp_name=semseg_6 --test_area=6 
+python main_semseg_s3dis.py --exp_name=semseg_s3dis_6 --test_area=6 
 ```
 
 ### 训练结束后运行评估脚本：
@@ -252,13 +254,13 @@ python main_semseg.py --exp_name=semseg_6 --test_area=6
 - 当模型在区域1-5训练完成后，在区域6中评估
 
 ``` 
-python main_semseg.py --exp_name=semseg_eval_6 --test_area=6 --eval=True --model_root=outputs/semseg/models/
+python main_semseg_s3dis.py --exp_name=semseg_s3dis_eval_6 --test_area=6 --eval=True --model_root=outputs/semseg_s3dis_s3dis/models/
 ```
 
 - 当6个模型训练完成后，在所有区域上评估
 
 ``` 
-python main_semseg.py --exp_name=semseg_eval --test_area=all --eval=True --model_root=outputs/semseg/models/
+python main_semseg_s3dis.py --exp_name=semseg_s3dis_eval --test_area=all --eval=True --model_root=outputs/semseg_s3dis/models/
 ```
 
 ### 使用提供的已训练模型运行评估脚本：
@@ -266,13 +268,13 @@ python main_semseg.py --exp_name=semseg_eval --test_area=all --eval=True --model
 - 使用提供的在区域1-5上已训练模型，在区域6中评估
 
 ``` 
-python main_semseg.py --exp_name=semseg_eval_6 --test_area=6 --eval=True --model_root=pretrained/semseg/
+python main_semseg_s3dis.py --exp_name=semseg_s3dis_eval_6 --test_area=6 --eval=True --model_root=pretrained/semseg_s3dis/
 ```
 
 - 使用提供的6个已训练模型，在所有区域上评估
 
 ``` 
-python main_semseg.py --exp_name=semseg_eval --test_area=all --eval=True --model_root=pretrained/semseg/
+python main_semseg_s3dis.py --exp_name=semseg_s3dis_eval --test_area=all --eval=True --model_root=pretrained/semseg_s3dis/
 ```
 
 ### 模型性能：
@@ -299,7 +301,7 @@ python main_semseg.py --exp_name=semseg_eval --test_area=all --eval=True --model
 
 所有格式均可通过[MeshLab](https://www.meshlab.net)来加载进行可视化。对于使用MeshLab可视化.txt格式，参考问题[#8](https://github.com/AnTao97/dgcnn.pytorch/issues/8)中的介绍，而.ply格式可以直接拖入MeshLab进行可视化。
 
-可视化文件名遵循统一的命名格式。对于预测结果，文件名格式为`房间名称_pred_miou.格式后缀`；对于真实标签，文件名格式为`房间名称_gt.格式后缀`。文件名中`miou`指该房间的平均IoU。
+可视化文件名遵循统一的命名格式。对于预测结果，文件名格式为`房间名称_pred_<miou>.格式后缀`；对于真实标签，文件名格式为`房间名称_gt.格式后缀`。文件名中`<iou>`指该房间的平均IoU。
 
 **注意：**对于语义分割，需要首先运行一个不带可视化的命令来预处理数据集，比如可视化部分之前的训练命令和评估命令。在数据集处理完成后，可以运行下面带有可视化的命令。
 
@@ -309,20 +311,20 @@ python main_semseg.py --exp_name=semseg_eval --test_area=all --eval=True --model
 
 ```
 # 使用训练后的模型
-python main_semseg.py --exp_name=semseg_eval_6 --test_area=6 --eval=True --model_root=outputs/semseg/models/ --visu=area_6_office_1 --visu_format=ply
+python main_semseg_s3dis.py --exp_name=semseg_s3dis_eval_6 --test_area=6 --eval=True --model_root=outputs/semseg_s3dis/models/ --visu=area_6_office_1 --visu_format=ply
 
 # 使用提供的已训练模型
-python main_semseg.py --exp_name=semseg_eval_6 --test_area=6 --eval=True --model_root=pretrained/semseg/ --visu=area_6_office_1 --visu_format=ply
+python main_semseg_s3dis.py --exp_name=semseg_s3dis_eval_6 --test_area=6 --eval=True --model_root=pretrained/semseg_s3dis/ --visu=area_6_office_1 --visu_format=ply
 ```
 
 - 输出区域6的所有房间的.ply格式可视化结果
 
 ```
 # 使用训练后的模型
-python main_semseg.py --exp_name=semseg_eval_6 --test_area=6 --eval=True --model_root=outputs/semseg/models/ --visu=area_6 --visu_format=ply
+python main_semseg_s3dis.py --exp_name=semseg_s3dis_eval_6 --test_area=6 --eval=True --model_root=outputs/semseg_s3dis/models/ --visu=area_6 --visu_format=ply
 
 # 使用提供的已训练模型
-python main_semseg.py --exp_name=semseg_eval_6 --test_area=6 --eval=True --model_root=pretrained/semseg/ --visu=area_6 --visu_format=ply
+python main_semseg_s3dis.py --exp_name=semseg_s3dis_eval_6 --test_area=6 --eval=True --model_root=pretrained/semseg_s3dis/ --visu=area_6 --visu_format=ply
 ```
 
 #### 当6个模型训练完成后，在所有区域上评估：
@@ -332,40 +334,160 @@ python main_semseg.py --exp_name=semseg_eval_6 --test_area=6 --eval=True --model
 
 ```
 # 使用训练后的模型
-python main_semseg.py --exp_name=semseg_eval --test_area=all --eval=True --model_root=outputs/semseg/models/ --visu=area_6_office_1 --visu_format=ply
+python main_semseg_s3dis.py --exp_name=semseg_s3dis_eval --test_area=all --eval=True --model_root=outputs/semseg/models_s3dis/ --visu=area_6_office_1 --visu_format=ply
 
 # 使用提供的已训练模型
-python main_semseg.py --exp_name=semseg_eval --test_area=all --eval=True --model_root=pretrained/semseg/ --visu=area_6_office_1 --visu_format=ply
+python main_semseg_s3dis.py --exp_name=semseg_s3dis_eval --test_area=all --eval=True --model_root=pretrained/semseg_s3dis/ --visu=area_6_office_1 --visu_format=ply
 ```
 
 - 输出区域6的所有房间的.ply格式可视化结果
 
 ```
 # 使用训练后的模型
-python main_semseg.py --exp_name=semseg_eval --test_area=all --eval=True --model_root=outputs/semseg/models/ --visu=area_6 --visu_format=ply
+python main_semseg_s3dis.py --exp_name=semseg_s3dis_eval --test_area=all --eval=True --model_root=outputs/semseg_s3dis/models/ --visu=area_6 --visu_format=ply
 
 # 使用提供的已训练模型
-python main_semseg.py --exp_name=semseg_eval --test_area=all --eval=True --model_root=pretrained/semseg/ --visu=area_6 --visu_format=ply
+python main_semseg_s3dis.py --exp_name=semseg_s3dis_eval --test_area=all --eval=True --model_root=pretrained/semseg_s3dis/ --visu=area_6 --visu_format=ply
 ```
 
 - 输出所有区域的所有房间的.ply格式可视化结果
 
 ```
 # 使用训练后的模型
-python main_semseg.py --exp_name=semseg_eval --test_area=all --eval=True --model_root=outputs/semseg/models/ --visu=all --visu_format=ply
+python main_semseg_s3dis.py --exp_name=semseg_s3dis_eval --test_area=all --eval=True --model_root=outputs/semseg_s3dis/models/ --visu=all --visu_format=ply
 
 # 使用提供的已训练模型
-python main_semseg.py --exp_name=semseg_eval --test_area=all --eval=True --model_root=pretrained/semseg/ --visu=all --visu_format=ply
+python main_semseg_s3dis.py --exp_name=semseg_s3dis_eval --test_area=all --eval=True --model_root=pretrained/semseg_s3dis/ --visu=all --visu_format=ply
 ```
 
 #### 可视化结果：
 区域6的办公室1的可视化结果：
 
 <p float="left">
-    <img src="image/semseg_visu.png"/>
+    <img src="image/semseg_s3dis_visu.png"/>
 </p>
 
 颜色对应图：
 <p float="left">
-    <img src="image/semseg_colors.png" width="800"/>
+    <img src="image/semseg_s3dis_colors.png" width="800"/>
+</p>
+
+&nbsp;
+## 在ScanNet数据集上点云场景语义分割
+
+DGCNN的作者并没有在ScanNet数据集上测试， 我们尽可能实现了一个DGCNN模型在ScanNet数据集上的实现版本。
+
+### 准备数据集：
+
+你需要把程序运行目录改变至`prepare_data/`文件夹下。
+
+```
+cd prepare_data/
+```
+
+请从[ScanNet网站](http://www.scan-net.org/)下载原始数据集，并放置其于`data/ScanNet/`，注意路径`data/ScanNet`内需要包括`data/ScanNet/scans/`文件夹和`data/ScanNet/scans_test/`文件夹。
+
+使用下面命令准备ScanNet数据集
+
+```
+python scannetv2_seg_dataset_rgb21c_pointid.py
+```
+
+本命令会产生三个pickle文件：`scannet_train_rgb21c_pointid.pickle`、`scannet_val_rgb21c_pointid.pickle`和`scannet_test_rgb21c_pointid.pickle`。
+
+返回主目录：
+
+```
+cd ..
+```
+
+### 运行训练脚本：
+
+```
+python main_semseg_scannet.py --exp_name=semseg_scannet
+```
+
+如果训练时同时使用训练集和验证集，使用`--train_val=True`。
+
+你可以使用[TensorBoard](https://tensorflow.google.cn/tensorboard)查看路径`outputs/semseg_scannet/logs/`保存的训练记录。
+
+### 训练结束后运行评估脚本：
+
+- 在验证集上评估
+
+```
+python main_semseg_scannet.py --eval=True --model_path=outputs/semseg_scannet/models/model_200.pth --exp_name=semseg_scannet_val --split=val
+```
+
+- 在测试集上评估
+
+```
+python main_semseg_scannet.py --eval=True --model_path=outputs/semseg_scannet/models/model_200.pth --exp_name=semseg_scannet_test --split=test
+```
+
+### 使用提供的已训练模型运行评估脚本：
+
+- 在验证集上评估
+
+```
+python main_semseg_scannet.py --eval=True --model_path=pretrained/semseg_scannet/models/model_200.pth --exp_name=semseg_scannet_val --split=val
+```
+
+- 在测试集上评估
+
+```
+python main_semseg_scannet.py --eval=True --model_path=pretrained/semseg_scannet/models/model_200.pth --exp_name=semseg_scannet_test --split=test
+```
+
+由于测试集内没有真实标签，所以测试脚本会直接保存预测结果，你需要将预测结果上传至[ScanNet评估网站](https://kaldir.vc.in.tum.de/scannet_benchmark/semantic_label_3d) 获取评估结果。
+
+### 模型性能：
+
+ScanNet数据集验证集
+
+|  | Mean IoU | wall | floor | cabinet | bed | chair | sofa | table | door | window | bookshelf | picture | counter | desk | curtain | refrigerator | shower curtain | toilet | sink | bathtub | otherfurniture | 
+| :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | 
+| This repo | 49.7 | 72.6 | 93.8 | 42.1 | 61.4 | 70.0 | 48.5 | 54.9 | 36.9 | 47.6 | 67.4 | 13.3 | 42.8 | 45.1 | 39.5 | 27.5 | 38.1 | 60.0 | 41.5 | 61.5 | 28.9 | 
+
+ScanNet数据集测试集
+
+|  | Mean IoU | wall | floor | cabinet | bed | chair | sofa | table | door | window | bookshelf | picture | counter | desk | curtain | refrigerator | shower curtain | toilet | sink | bathtub | other furniture | 
+| :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | 
+| This repo | 44.6 | 72.3 | 93.7 | 36.6 | 62.3 | 65.1 | 57.7 | 44.5 | 33.0 | 39.4 | 46.3 | 12.6 | 31.0 | 34.9 | 38.9 | 28.5 | 22.4 | 62.5 | 35.0 | 47.4 | 27.1 | 
+
+ScanNet数据集上没有DGCNN的官方结果，你可以在[ScanNet评估网站](https://kaldir.vc.in.tum.de/scannet_benchmark/semantic_label_3d) 上找到我们的上传记录`DGCNN_reproduce`。
+
+### 可视化：
+#### 使用说明：
+
+使用`--visu`控制需要可视化的文件。
+
+- 对于可视化一个场景，比如`scene0568_00`，使用`--visu=scene0568_00`。
+- 对于可视化多个场景，请将场景之间用英文逗号区分，使用`--visu=scene0568_00,scene0568_01`。
+- 对于可视化一个划分集合内的场景，使用`--visu=train`或者`--visu=val`或者`--visu=test`。
+- 对于可视化数据集内所有场景，使用`--visu=all`。
+
+使用`--visu_format`控制可视化文件的格式。
+
+- 输出.txt格式，使用`--visu_format=txt`。
+- 输出.ply格式，使用`--visu_format=ply`。 
+
+所有格式均可通过[MeshLab](https://www.meshlab.net)来加载进行可视化。对于使用MeshLab可视化.txt格式，参考问题[#8](https://github.com/AnTao97/dgcnn.pytorch/issues/8)中的介绍，而.ply格式可以直接拖入MeshLab进行可视化。
+
+例如，如果你想可视化预训练模型在`scene0568_00`的结果，运行：
+
+```
+python main_semseg_scannet.py --eval=True --model_path=pretrained/semseg_scannet/models/model_200.pth --exp_name=semseg_scannet_val_visu --visu=scene0568_00
+```
+
+#### 可视化结果：
+场景`scene0568_00`的可视化结果：
+
+<p float="left">
+    <img src="image/semseg_scannet_visu.png"/>
+</p>
+
+颜色对应图：
+<p float="left">
+    <img src="image/semseg_scannet_colors.png"/>
 </p>
