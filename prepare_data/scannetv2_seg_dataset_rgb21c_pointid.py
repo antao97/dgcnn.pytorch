@@ -105,12 +105,10 @@ def gen_pickle(split="val", keep_unanno=False, root="DataSet/Scannet_v2"):
 if __name__ == '__main__':
 
     # modify this path to your Scannet v2 dataset Path
-    # root = "../data/ScanNet"
-    root = "/data3/antao/Documents/Datasets/ScanNet_raw"
-    # gen_pickle(split='train', keep_unanno=False, root=root)
-    gen_pickle(split='train', keep_unanno=True, root=root)
-    # gen_pickle(split='val', keep_unanno=False, root=root)
-    # gen_pickle(split='val', keep_unanno=True, root=root)
-    # gen_pickle(split='test', keep_unanno=True, root=root)
+    root = "../data/ScanNet"
+    gen_pickle(split='train', keep_unanno=False, root=root)
+    gen_pickle(split='val', keep_unanno=False, root=root)
+    gen_pickle(split='val', keep_unanno=True, root=root)
+    gen_pickle(split='test', keep_unanno=True, root=root)
 
     print('Done!!!')

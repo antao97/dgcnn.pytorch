@@ -394,7 +394,7 @@ To prepare the Scannet dataset for training and evaluation, run
 python scannetv2_seg_dataset_rgb21c_pointid.py
 ```
 
-This will generate three pickle files: `scannet_train_rgb21c_pointid.pickle`, `scannet_val_rgb21c_pointid.pickle`, and `scannet_test_rgb21c_pointid.pickle`. 
+This will generate four pickle files: `scannet_train_rgb21c_pointid.pickle`, `scannet_val_rgb21c_pointid.pickle`, `scannet_val_rgb21c_pointid_keep_unanno.pickle`, and `scannet_test_rgb21c_pointid_keep_unanno.pickle`. 
 
 Return to the root directory:
 

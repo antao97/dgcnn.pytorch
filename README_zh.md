@@ -393,7 +393,7 @@ cd prepare_data/
 python scannetv2_seg_dataset_rgb21c_pointid.py
 ```
 
-本命令会产生三个pickle文件：`scannet_train_rgb21c_pointid.pickle`、`scannet_val_rgb21c_pointid.pickle`和`scannet_test_rgb21c_pointid.pickle`。
+本命令会产生四个pickle文件：`scannet_train_rgb21c_pointid.pickle`、`scannet_val_rgb21c_pointid.pickle`、`scannet_val_rgb21c_pointid_keep_unanno.pickle`和`scannet_test_rgb21c_pointid_keep_unanno.pickle`。
 
 返回主目录：
 
